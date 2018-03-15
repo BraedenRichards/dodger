@@ -8,26 +8,32 @@ import sys
 # @return void
 def main():
 	pygame.init()
-	p = Player()
-	game_continue = True
-	score = 0
-	myfont = pygame.font.SysFont("monospace", 16)
-	gameover = pygame.font.SysFont("monospace", 40)
-	endscore = pygame.font.SysFont("monospace", 30)
-	
+	game_continue = 1
+	score = [0]	
 	screen_width = 700
 	screen_height = 400
 
 	screen = pygame.display.set_mode([screen_width,screen_height])
 	screen.fill((255, 255, 255))
 
+	while game_continue is 1:
+		PlayGame(screen, screen_width, screen_height, score)
+
+		game_continue = GameOver(screen, screen_width, screen_height, score)
+
+	return
+
+def PlayGame(screen, screen_width, screen_height, score):
+	myfont = pygame.font.SysFont("monospace", 16)
 	screen.fill((255,255,255))
 	pygame.display.update()
 	proj = []
+	p = Player()
 
 	i = 0
 	j = 0
 	score_counter = 0
+	game_continue = True
 	while game_continue:
 		for event in pygame.event.get():
 			if event.type == pygame.QUIT:
@@ -38,13 +44,8 @@ def main():
 		screen.fill((255, 255, 255))
 		p.Update(screen, keys, screen_height, screen_width)
 
-		# if j == 0:
-		# 	proj.append(Projectile(screen_width, screen_height, (score * 0.04 + 5)))
-		# 	j = 8
-		# else:
-		# 	j -= 1
-		if(random.randrange(0, 100) > 90 - score * 0.03):	
-			proj.append(Projectile(screen_width, screen_height, (score * 0.04 + 5)))
+		if(random.randrange(0, 100) > 90 - score[0] * 0.03):	
+			proj.append(Projectile(screen_width, screen_height, (score[0] * 0.04 + 5)))
 
 		if len(proj) is not 0:
 			for projectile in proj:
@@ -55,35 +56,63 @@ def main():
 					if projectile.x < p.x + p.w and projectile.x + projectile.w > p.x and projectile.y < p.y + p.h and projectile.h + projectile.y > p.y:
 						game_continue = False
 
-		scoretext = myfont.render("Score = "+str(score), 1, (0,0,0))
+		scoretext = myfont.render("Score = "+str(score[0]), 1, (0,0,0))
 		screen.blit(scoretext, (5, 10))
 		pygame.display.update()
 
 		if score_counter == 0:
-			score += 1
+			score[0] += 1
 			score_counter = 10
 		else:
 			score_counter -= 1
+	return
 
+
+def GameOver(screen, screen_width, screen_height, score):
+
+	gameover = pygame.font.SysFont("monospace", 40)
+	endscore = pygame.font.SysFont("monospace", 30)
+	decision = pygame.font.SysFont("monospace", 25)
+
+	i = 40
 	while(True):
+
 		screen.fill((0, 0, 0))
 
 		gameOverText = gameover.render("GAME OVER", 1, (255,255,255))
 		screen.blit(gameOverText, (screen_width/2 - 80, screen_height/2 - 50))
 
-		scoretext = endscore.render("Score = "+str(score), 1, (255,255,255))
+		scoretext = endscore.render("Score = "+str(score[0]), 1, (255,255,255))
 		screen.blit(scoretext, (screen_width/2-45, screen_height/2 - 15))
 
+		if i <= 40:
+			decisionText = decision.render("> Press 'e' to exit()", 1, (255,255,255))
+			screen.blit(decisionText, (10, screen_height/2+10))
+
+			decisionText = decision.render("> Press spacebar to play again()", 1, (255,255,255))
+			screen.blit(decisionText, (10, screen_height/2+30))
+
+			if i == 0:
+				i = 80
+			else:
+				i -= 1
+
+		elif i > 40:
+			i -= 1
+
 		pygame.display.update()
+		keys = pygame.key.get_pressed()
+
+		if keys[pygame.K_SPACE]:
+			return 1
+		elif keys[pygame.K_e]:
+			return 0
 
 		for event in pygame.event.get():
 			if event.type == pygame.QUIT:
 				pygame.quit()
 				sys.exit()
 		keys = pygame.key.get_pressed()
-
-	return
-
 
 
 class Player:
