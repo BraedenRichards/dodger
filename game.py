@@ -14,9 +14,10 @@ def main():
 	screen_height = 400
 
 	screen = pygame.display.set_mode([screen_width,screen_height])
-	screen.fill((255, 255, 255))
+	screen.fill((0, 0, 0))
 
 	while game_continue is 1:
+		TitleScreen(screen, screen_width, screen_height)
 		PlayGame(screen, screen_width, screen_height, score)
 
 		game_continue = GameOver(screen, screen_width, screen_height, score)
@@ -24,11 +25,12 @@ def main():
 	return
 
 def PlayGame(screen, screen_width, screen_height, score):
-	myfont = pygame.font.SysFont("monospace", 16)
-	screen.fill((255,255,255))
+	myfont = pygame.font.SysFont("monospace", 25)
+	screen.fill((0,0,0))
 	pygame.display.update()
 	proj = []
 	p = Player()
+	score[0] = 0
 
 	i = 0
 	j = 0
@@ -41,7 +43,7 @@ def PlayGame(screen, screen_width, screen_height, score):
 				sys.exit()
 		keys = pygame.key.get_pressed()
 
-		screen.fill((255, 255, 255))
+		screen.fill((0, 0, 0))
 		p.Update(screen, keys, screen_height, screen_width)
 
 		if(random.randrange(0, 100) > 90 - score[0] * 0.03):	
@@ -56,7 +58,7 @@ def PlayGame(screen, screen_width, screen_height, score):
 					if projectile.x < p.x + p.w and projectile.x + projectile.w > p.x and projectile.y < p.y + p.h and projectile.h + projectile.y > p.y:
 						game_continue = False
 
-		scoretext = myfont.render("Score = "+str(score[0]), 1, (0,0,0))
+		scoretext = myfont.render("Score = "+str(score[0]), 1, (255,255,255))
 		screen.blit(scoretext, (5, 10))
 		pygame.display.update()
 
@@ -114,6 +116,37 @@ def GameOver(screen, screen_width, screen_height, score):
 				sys.exit()
 		keys = pygame.key.get_pressed()
 
+def TitleScreen(screen, screen_width, screen_height):
+	proj = []
+	screen.fill((0,0,0))
+	Title = pygame.font.SysFont("monospace", 80)
+	Intr = pygame.font.SysFont("monospace", 40)
+	pygame.display.update()
+
+	while(True):
+		for event in pygame.event.get():
+			if event.type == pygame.QUIT:
+				pygame.quit()
+				sys.exit()
+		keys = pygame.key.get_pressed()
+
+		if keys[pygame.K_SPACE]:
+			break
+		screen.fill((0, 0, 0))
+		if(random.randrange(0, 100) > 90):	
+			proj.append(Projectile(screen_width, screen_height, 5))
+		if len(proj) is not 0:
+			for projectile in proj:
+				if projectile.x + projectile.w < 0:
+					proj.remove(projectile)
+				else:
+					projectile.Update(screen)
+		TitleText = Title.render("Dodger", 1, (255,255,255))
+		InstrText = Intr.render("Press Space to Play()", 1, (255,255,255))
+		screen.blit(TitleText, (screen_width/2 - 100, screen_height/4))
+		screen.blit(InstrText, (screen_width/2 - 150, screen_height/2))
+
+		pygame.display.update()
 
 class Player:
 	def __init__(self):
@@ -156,7 +189,7 @@ class Projectile:
 		self.ShowProjectile(screen)
 
 	def ShowProjectile(self, screen):
-		pygame.draw.rect(screen, (0, 0, 255), (self.x, self.y, self.w, self.h), 0)
+		pygame.draw.rect(screen, (10, 10, 255), (self.x, self.y, self.w, self.h), 0)
 
 	def UpdatePos(self):
 		self.x -= self.v
